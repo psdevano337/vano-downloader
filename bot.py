@@ -41,16 +41,16 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Setelan paling longgar tanpa rewel soal format
+  # Memaksa format single-file (video+audio gabung tanpa butuh ffmpeg) lewat client Android
   ydl_opts = {
-      "format": "bv*+ba/b",
+      "format": "18/22/best",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
       "nocheckcertificate": True,
       "extractor_args": {
           "youtube": {
-              "player_client": ["android", "web"],
+              "player_client": ["android"],
           }
       },
   }
