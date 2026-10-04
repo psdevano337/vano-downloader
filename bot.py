@@ -10,7 +10,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-  return "Bot API is running!"
+  app_status = "Bot downloader is active and running!"
+  return app_status
 
 
 @app.route("/health")
@@ -22,8 +23,7 @@ def health():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader versi cepat siap. Kirimkan link YouTube atau"
-      " TikTok!",
+      "Halo Vano! Bot downloader siap. Kirimkan link YouTube atau TikTok!",
   )
 
 
@@ -40,46 +40,46 @@ def download_media(message):
     bot.reply_to(message, "Kirim link YouTube atau TikTok yang bener ya, Vano!")
     return
 
-  msg = bot.reply_to(message, "Sedang memproses download via API, sabar ya...")
+  msg = bot.reply_to(message, "Sedang memproses link, sabar ya...")
 
   try:
-    # Menggunakan API publik gratis untuk mengambil data video
-    api_url = (
-        f"https://api.tikdownload.app/api/ajaxSearch?q={url}"
-        # atau bisa menggunakan endpoint downloader umum
-    )
+    video_url = None
 
-    # Cara paling aman menggunakan request ke layanan scraper publik atau endpoint cobalt/y2mate api
-    # Mari kita gunakan endpoint yang stabil untuk fetch direct link video:
-    # Kita pakai request sederhana lewat API publik universal:
-    r = requests.get(
-        f"https://deliriussapi-v2.vercel.app/download/ytdl?url={url}", timeout=30
+    # Percobaan 1: Menggunakan API Cobalt yang sangat stabil untuk sosmed & YT
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0",
+    }
+    r = requests.post(
+        "https://co.wuk.sh/api/json",
+        json={"url": url},
+        headers=headers,
+        timeout=15,
     )
     res = r.json()
+    if res.get("status") in ["stream", "redirect"] or res.get("url"):
+      video_url = res.get("url")
 
-    if res.get("status") and res.get("data"):
-      video_url = res["data"]["download"]["url"]
+    # Percobaan 2: Jika Cobalt gagal, lempar ke API alternatif publik
+    if not video_url:
+      r2 = requests.get(
+          f"https://deliriussapi-v2.vercel.app/download/ytdl?url={url}",
+          timeout=15,
+      )
+      res2 = r2.json()
+      if res2.get("status") and res2.get("data"):
+        video_url = res2["data"]["download"]["url"]
 
-      # Kirim langsung video ke Telegram berdasarkan direct link dari API
+    if video_url:
       bot.send_video(message.chat.id, video_url)
       bot.delete_message(message.chat.id, msg.message_id)
     else:
-      # Cadangan pakai API alternatif jika yang pertama gagal
-      r2 = requests.get(
-          f"https://api.ryzendesu.vip/api/downloader/ytdl?url={url}", timeout=30
-      )
-      res2 = r2.json()
-      if res2.get("url"):
-        bot.send_video(message.chat.id, res2["url"])
-        bot.delete_message(message.chat.id, msg.message_id)
-      else:
-        raise Exception(
-            "Gagal mendapatkan link download dari server API publik."
-        )
+      raise Exception("Server gagal merespon link unduhan.")
 
   except Exception as e:
     bot.edit_message_text(
-        f"Gagal mendownload video:\n`{str(e)}`",
+        f"Gagal mengambil video:\n`{str(e)}`",
         message.chat.id,
         msg.message_id,
         parse_mode="Markdown",
