@@ -36,8 +36,9 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
+  # Pakai format bervideo + beraudio langsung (biasanya mp4 resolusi 360p/720p tanpa butuh ffmpeg)
   ydl_opts = {
-      "format": "best",
+      "format": "best[ext=mp4]/best",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
@@ -49,7 +50,6 @@ def download_media(message):
       },
   }
 
-  # Membaca file cookies.txt jika ada di folder project
   if os.path.exists("cookies.txt"):
     ydl_opts["cookiefile"] = "cookies.txt"
 
