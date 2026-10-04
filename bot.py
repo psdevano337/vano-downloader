@@ -17,8 +17,7 @@ def home():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader siap dengan cookies. Kirimkan link YouTube atau"
-      " TikTok!",
+      "Halo Vano! Bot downloader siap. Kirimkan link YouTube atau TikTok!",
   )
 
 
@@ -38,7 +37,7 @@ def download_media(message):
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
   ydl_opts = {
-      "format": "mp4/best",
+      "format": "best",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
@@ -50,7 +49,7 @@ def download_media(message):
       },
   }
 
-  # Membaca file cookies.txt jika ada di folder project Railway/GitHub
+  # Membaca file cookies.txt jika ada di folder project
   if os.path.exists("cookies.txt"):
     ydl_opts["cookiefile"] = "cookies.txt"
 
