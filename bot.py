@@ -1,7 +1,7 @@
 import os
 from flask import Flask
+import requests
 import telebot
-import yt_dlp
 
 TOKEN = "8649093474:AAGWEWf-eWjd036MHO3q_dIVaLXEQfUfLx4"
 bot = telebot.TeleBot(TOKEN)
@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-  return "Bot is running!"
+  return "Bot API is running!"
 
 
 @app.route("/health")
@@ -22,7 +22,8 @@ def health():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader siap. Kirimkan link YouTube atau TikTok!",
+      "Halo Vano! Bot downloader versi cepat siap. Kirimkan link YouTube atau"
+      " TikTok!",
   )
 
 
@@ -39,49 +40,42 @@ def download_media(message):
     bot.reply_to(message, "Kirim link YouTube atau TikTok yang bener ya, Vano!")
     return
 
-  msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
-
-  ydl_opts = {
-      "format": "bv*+ba/b",
-      "outtmpl": "video.mp4",
-      "noplaylist": True,
-      "geo_bypass": True,
-      "nocheckcertificate": True,
-      "extractor_args": {
-          "youtube": {
-              "player_client": ["android", "web"],
-          }
-      },
-  }
-
-  # Cek eksplisit keberadaan cookies.txt di server
-  if os.path.exists("cookies.txt"):
-    ydl_opts["cookiefile"] = "cookies.txt"
-    print("STATUS: File cookies.txt ditemukan di server!")
-  else:
-    print("STATUS PERINGATAN: File cookies.txt TIDAK DITEMUKAN di server!")
+  msg = bot.reply_to(message, "Sedang memproses download via API, sabar ya...")
 
   try:
-    if os.path.exists("video.mp4"):
-      os.remove("video.mp4")
+    # Menggunakan API publik gratis untuk mengambil data video
+    api_url = (
+        f"https://api.tikdownload.app/api/ajaxSearch?q={url}"
+        # atau bisa menggunakan endpoint downloader umum
+    )
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-      ydl.download([url])
+    # Cara paling aman menggunakan request ke layanan scraper publik atau endpoint cobalt/y2mate api
+    # Mari kita gunakan endpoint yang stabil untuk fetch direct link video:
+    # Kita pakai request sederhana lewat API publik universal:
+    r = requests.get(
+        f"https://deliriussapi-v2.vercel.app/download/ytdl?url={url}", timeout=30
+    )
+    res = r.json()
 
-    downloaded_file = "video.mp4"
-    if not os.path.exists(downloaded_file):
-      for f in os.listdir("."):
-        if f.endswith(".mp4"):
-          downloaded_file = f
-          break
+    if res.get("status") and res.get("data"):
+      video_url = res["data"]["download"]["url"]
 
-    with open(downloaded_file, "rb") as video:
-      bot.send_video(message.chat.id, video)
-
-    bot.delete_message(message.chat.id, msg.message_id)
-
-    if os.path.exists(downloaded_file):
-      os.remove(downloaded_file)
+      # Kirim langsung video ke Telegram berdasarkan direct link dari API
+      bot.send_video(message.chat.id, video_url)
+      bot.delete_message(message.chat.id, msg.message_id)
+    else:
+      # Cadangan pakai API alternatif jika yang pertama gagal
+      r2 = requests.get(
+          f"https://api.ryzendesu.vip/api/downloader/ytdl?url={url}", timeout=30
+      )
+      res2 = r2.json()
+      if res2.get("url"):
+        bot.send_video(message.chat.id, res2["url"])
+        bot.delete_message(message.chat.id, msg.message_id)
+      else:
+        raise Exception(
+            "Gagal mendapatkan link download dari server API publik."
+        )
 
   except Exception as e:
     bot.edit_message_text(
