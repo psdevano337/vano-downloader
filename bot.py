@@ -17,7 +17,7 @@ def home():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader dengan cookies aktif. Kirimkan link YouTube atau"
+      "Halo Vano! Bot downloader siap digunakan. Kirimkan link YouTube atau"
       " TikTok!",
   )
 
@@ -35,20 +35,26 @@ def download_media(message):
     bot.reply_to(message, "Kirim link YouTube atau TikTok yang bener ya, Vano!")
     return
 
-  msg = bot.reply_to(message, "Sedang memproses download pakai cookies...")
+  msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Setelan yt-dlp menggunakan cookies.txt
+  # Setelan yt-dlp dengan bypass cookies browser otomatis & player client android
   ydl_opts = {
       "format": "mp4/best",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
       "nocheckcertificate": True,
+      "extractor_args": {
+          "youtube": {
+              "player_client": ["android", "ios", "web"],
+          }
+      },
+      "cookiesfrombrowser": ("chrome",),
+      "user_agent": (
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
+          " like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      ),
   }
-
-  # Cek jika file cookies.txt ada di repository
-  if os.path.exists("cookies.txt"):
-    ydl_opts["cookiefile"] = "cookies.txt"
 
   try:
     if os.path.exists("video.mp4"):
