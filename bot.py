@@ -17,7 +17,7 @@ def home():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader siap digunakan. Kirimkan link YouTube atau"
+      "Halo Vano! Bot downloader siap dengan cookies. Kirimkan link YouTube atau"
       " TikTok!",
   )
 
@@ -37,7 +37,6 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Setelan yt-dlp dengan bypass cookies browser otomatis & player client android
   ydl_opts = {
       "format": "mp4/best",
       "outtmpl": "video.mp4",
@@ -46,15 +45,14 @@ def download_media(message):
       "nocheckcertificate": True,
       "extractor_args": {
           "youtube": {
-              "player_client": ["android", "ios", "web"],
+              "player_client": ["android", "web"],
           }
       },
-      "cookiesfrombrowser": ("chrome",),
-      "user_agent": (
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
-          " like Gecko) Chrome/120.0.0.0 Safari/537.36"
-      ),
   }
+
+  # Membaca file cookies.txt jika ada di folder project Railway/GitHub
+  if os.path.exists("cookies.txt"):
+    ydl_opts["cookiefile"] = "cookies.txt"
 
   try:
     if os.path.exists("video.mp4"):
