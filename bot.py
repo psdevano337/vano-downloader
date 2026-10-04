@@ -22,7 +22,8 @@ def health():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader siap. Kirimkan link YouTube atau TikTok!",
+      "Halo Vano! Bot downloader ffmpeg aktif. Kirimkan link YouTube atau"
+      " TikTok!",
   )
 
 
@@ -41,16 +42,16 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Memaksa format single-file (video+audio gabung tanpa butuh ffmpeg) lewat client Android
+  # Menggunakan format terbaik yang digabung otomatis oleh ffmpeg
   ydl_opts = {
-      "format": "18/22/best",
+      "format": "bv*+ba/b",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
       "nocheckcertificate": True,
       "extractor_args": {
           "youtube": {
-              "player_client": ["android"],
+              "player_client": ["android", "web"],
           }
       },
   }
