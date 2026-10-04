@@ -1,7 +1,7 @@
 import telebot, yt_dlp, os, uuid, glob
 from flask import Flask
 
-TOKEN = '8649093474:AAGy4OZ6Giq5Pd2ieo1mC5tJvVkSj2IClLU'
+TOKEN = '8649093474:AAGWEWf-eWjd036MHO3q_dIVaLXEQfUfLx4'
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
