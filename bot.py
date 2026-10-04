@@ -37,15 +37,21 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
+  # Konfigurasi anti-bot YouTube & TikTok terbaru
   ydl_opts = {
       "format": "mp4/best",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
       "nocheckcertificate": True,
+      "extractor_args": {
+          "youtube": {
+              "player_client": ["android", "web"],
+          }
+      },
       "user_agent": (
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
-          " like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like"
+          " Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
       ),
   }
 
@@ -89,3 +95,4 @@ if __name__ == "__main__":
 
   port = int(os.environ.get("PORT", 8080))
   app.run(host="0.0.0.0", port=port)
+  
