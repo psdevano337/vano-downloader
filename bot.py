@@ -10,8 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-  app_status = "Bot downloader is active and running!"
-  return app_status
+  return "Bot API is running!"
 
 
 @app.route("/health")
@@ -45,37 +44,26 @@ def download_media(message):
   try:
     video_url = None
 
-    # Percobaan 1: Menggunakan API Cobalt yang sangat stabil untuk sosmed & YT
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0",
-    }
-    r = requests.post(
-        "https://co.wuk.sh/api/json",
-        json={"url": url},
+    # Menggunakan API downloader publik yang aktif
+    headers = {"User-Agent": "Mozilla/5.0"}
+    r = requests.get(
+        f"https://api.ryzendesu.vip/api/downloader/ytdl?url={url}",
         headers=headers,
-        timeout=15,
+        timeout=20,
     )
     res = r.json()
-    if res.get("status") in ["stream", "redirect"] or res.get("url"):
-      video_url = res.get("url")
 
-    # Percobaan 2: Jika Cobalt gagal, lempar ke API alternatif publik
-    if not video_url:
-      r2 = requests.get(
-          f"https://deliriussapi-v2.vercel.app/download/ytdl?url={url}",
-          timeout=15,
-      )
-      res2 = r2.json()
-      if res2.get("status") and res2.get("data"):
-        video_url = res2["data"]["download"]["url"]
+    if res.get("url"):
+      video_url = res["url"]
+    elif res.get("data") and isinstance(res["data"], dict):
+      video_url = res["data"].get("url")
 
+    # Jika dapat linknya, kirim langsung ke Telegram
     if video_url:
       bot.send_video(message.chat.id, video_url)
       bot.delete_message(message.chat.id, msg.message_id)
     else:
-      raise Exception("Server gagal merespon link unduhan.")
+      raise Exception("Gagal mendapatkan link video dari server API.")
 
   except Exception as e:
     bot.edit_message_text(
