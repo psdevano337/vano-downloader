@@ -13,6 +13,11 @@ def home():
   return "Bot is running!"
 
 
+@app.route("/health")
+def health():
+  return "OK", 200
+
+
 @bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
   bot.reply_to(
@@ -36,9 +41,9 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Pakai format bervideo + beraudio langsung (biasanya mp4 resolusi 360p/720p tanpa butuh ffmpeg)
+  # Setelan paling longgar tanpa rewel soal format
   ydl_opts = {
-      "format": "best[ext=mp4]/best",
+      "format": "bv*+ba/b",
       "outtmpl": "video.mp4",
       "noplaylist": True,
       "geo_bypass": True,
