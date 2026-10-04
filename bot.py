@@ -22,8 +22,7 @@ def health():
 def send_welcome(message):
   bot.reply_to(
       message,
-      "Halo Vano! Bot downloader ffmpeg aktif. Kirimkan link YouTube atau"
-      " TikTok!",
+      "Halo Vano! Bot downloader siap. Kirimkan link YouTube atau TikTok!",
   )
 
 
@@ -42,7 +41,6 @@ def download_media(message):
 
   msg = bot.reply_to(message, "Sedang memproses download, sabar ya...")
 
-  # Menggunakan format terbaik yang digabung otomatis oleh ffmpeg
   ydl_opts = {
       "format": "bv*+ba/b",
       "outtmpl": "video.mp4",
@@ -56,8 +54,12 @@ def download_media(message):
       },
   }
 
+  # Cek eksplisit keberadaan cookies.txt di server
   if os.path.exists("cookies.txt"):
     ydl_opts["cookiefile"] = "cookies.txt"
+    print("STATUS: File cookies.txt ditemukan di server!")
+  else:
+    print("STATUS PERINGATAN: File cookies.txt TIDAK DITEMUKAN di server!")
 
   try:
     if os.path.exists("video.mp4"):
